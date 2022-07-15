@@ -680,6 +680,14 @@ public class PythonVidapiGenerator extends DefaultCodegen implements CodegenConf
         return toExampleValueRecursive(schema, new ArrayList<String>(), 5);
     }
 
+    private static String exampleNullGuard(String example) {
+        if ("null".equals(example)) {
+            return "None";
+        } else {
+            return example;
+        }
+    }
+
     private String toExampleValueRecursive(Schema schema, List<String> included_schemas, int indentation) {
         String indentation_string = "";
         for (int i = 0; i < indentation; i++) indentation_string += "    ";
@@ -705,7 +713,7 @@ public class PythonVidapiGenerator extends DefaultCodegen implements CodegenConf
             if (ModelUtils.isStringSchema(schema)) {
                 example = "'" + example + "'";
             }
-            return example;
+            return exampleNullGuard(example);
         }
 
         if (schema.getEnum() != null && !schema.getEnum().isEmpty()) {
@@ -716,8 +724,7 @@ public class PythonVidapiGenerator extends DefaultCodegen implements CodegenConf
             }
             if (null == example)
                 LOGGER.warn("Empty enum. Cannot built an example!");
-
-            return example;
+            return exampleNullGuard(example);
         } else if (null != schema.get$ref()) {
             // $ref case:
             Map<String, Schema> allDefinitions = ModelUtils.getSchemas(this.openAPI);
@@ -871,8 +878,7 @@ public class PythonVidapiGenerator extends DefaultCodegen implements CodegenConf
         if (ModelUtils.isStringSchema(schema)) {
             example = "'" + escapeText(example) + "'";
         }
-
-        return example;
+        return exampleNullGuard(example);
     }
 
     @Override
@@ -1002,4 +1008,5 @@ public class PythonVidapiGenerator extends DefaultCodegen implements CodegenConf
             }
         }
     }
+
 }
